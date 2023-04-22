@@ -1,0 +1,28 @@
+# Prepare third party dependencies for Nexus.
+# We rely on packages that come with the distribution
+# Choose installation method using facts:
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_conditionals.html#ansible-facts-os-family
+---
+- name: Debian third party installation
+  tags: thirdparty_debian
+  block:
+  - name: Third party dependencies on the master Nexus 3 node (Debian)
+    ansible.builtin.apt:
+      name:
+        - openjdk-8-jre
+        - logrotate
+      state: present
+      update_cache: true
+  when: ansible_facts['os_family'] == 'Debian'
+- name: Fedora/ RedHat third party installation
+  tags: thirdparty_redhat
+  block:
+  - name: Third party dependencies on the master Nexus 3 node (RedHat)
+    tags: thirdparty_redhat
+    ansible.builtin.dnf:
+      name:
+        - java-1.8.0-openjdk
+        - logrotate
+      state: present
+      update_cache: true
+  when: ansible_facts['os_family'] == 'RedHat'

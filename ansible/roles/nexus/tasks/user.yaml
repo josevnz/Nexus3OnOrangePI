@@ -1,0 +1,37 @@
+# Nexus is up and running, tasks to prepare it for general usage
+# User related tasks
+# https://help.sonatype.com/repomanager3/installation-and-upgrades/post-install-checklist
+# https://help.sonatype.com/repomanager3/integrations/rest-and-integration-api
+---
+- name: Enable anonymous user
+  tags: anonymous
+  ansible.builtin.uri:
+    user: "{{ admin_user }}"
+    password: "{{ admin_password }}"
+    url: "{{ nexus_rest_api }}/v1/security/anonymous"
+    method: PUT
+    body_format: raw
+    status_code: [ 200, 202, 204 ]
+    headers:
+      Content-Type: application/json
+    body: |-
+      { "enabled" : true, "userId" : "anonymous", "realmName" : "NexusAuthorizingRealm" }
+    force_basic_auth: true
+    return_content: true
+  any_errors_fatal: true
+- name: Enable Docker security realm
+  tags: docker_realm
+  ansible.builtin.uri:
+    user: "{{ admin_user }}"
+    password: "{{ admin_password }}"
+    url: "{{ nexus_rest_api }}/v1/security/realms/active"
+    method: PUT
+    body_format: raw
+    status_code: [ 200, 202, 204 ]
+    headers:
+      Content-Type: application/json
+    body: |-
+      [ "NexusAuthenticatingRealm", "NexusAuthorizingRealm", "DockerToken" ]
+    force_basic_auth: true
+    return_content: true
+  any_errors_fatal: true

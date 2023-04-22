@@ -1,0 +1,19 @@
+# You can always find the latest version of Nexus 3 OSS here:
+#   https://help.sonatype.com/repomanager3/product-information/download
+---
+- name: Nexus download tasks
+  block:
+  - name: Check if Nexus 3 src file already exists
+    tags: download_pre_check
+    ansible.builtin.stat:
+      path: "{{ install_base_dir }}/src/{{ nexus3_src_file }}"
+    register: nexus_src
+    ignore_errors: true
+  - name: Download Nexus 3
+    tags: download_nexus
+    ansible.builtin.get_url:
+      url: "{{ nexus3_download_url }}"
+      dest: "{{ install_base_dir }}/src"
+      checksum: "md5:{{ nexus3_checksum_md5sum }}"
+    when: nexus_src.stat.exists == False
+  any_errors_fatal: true

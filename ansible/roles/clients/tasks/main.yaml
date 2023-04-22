@@ -1,0 +1,18 @@
+# Tasks here are meant to be used on our clients user
+---
+- name: Create installation directory for pip.conf
+  tags: pip_basedir
+  ansible.builtin.file:
+    state: directory
+    path: "{{ pip_dir }}"
+    owner: "{{lab_user }}"
+    group: "{{lab_user }}"
+    mode: "u+rwx,go-rwx"
+- name: Copy pip.conf file
+  tags: pip_copy
+  ansible.builtin.template:
+    src: pip.conf.j2
+    dest: "{{ pip_dir }}/pip.conf"
+    owner: "{{lab_user }}"
+    group: "{{lab_user }}"
+    mode: u=rxw,g=r,o=r

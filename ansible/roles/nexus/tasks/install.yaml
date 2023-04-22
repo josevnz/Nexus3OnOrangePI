@@ -1,0 +1,63 @@
+# Sonatype Nexus has many resources that explain how to perform the installation
+# https://help.sonatype.com/repomanager3/product-information/sonatype-nexus-repository-system-requirements
+# https://github.com/sonatype-nexus-community/nexus-repository-installer
+# https://help.sonatype.com/repomanager3/installation-and-upgrades/run-as-a-service
+# We will not use the provided Debian or RPM community packages as we want maximum control over some settings.
+---
+- name: Nexus installation tasks
+  block:
+  - name: Check if the nexus 3 directory exists
+    tags: exists_basedir_nexus
+    ansible.builtin.stat:
+      path: "{{ nexus_base_dir }}"
+    register: base_dir
+  - name: Check if Nexus 3 was already unpacked
+    tags: unpack_check
+    ansible.builtin.stat:
+      path: "{{ nexus_base_dir }}/nexus-{{ nexus3_version }}"
+    register: nexus_base
+  - name: Extract Nexus 3 sources if not already there
+    tags: extract_nexus
+    ansible.builtin.unarchive:
+      src: "{{ install_base_dir }}/src/nexus-{{ nexus3_version }}-unix.tar.gz"
+      dest: "{{ nexus_base_dir }}"
+      remote_src: true
+      owner: "{{ nexus_user }}"
+      group: "{{ nexus_grp }}"
+    when: base_dir.stat.isdir is defined and base_dir.stat.isdir and nexus_base.stat.exists == False
+  - name: Deploy Nexus configuration overrides
+    tags: deploy_overrides
+    ansible.builtin.template:
+      src: "{{ item }}"
+      dest: "{{ nexus_base_dir }}/nexus-{{ nexus3_version }}/bin/{{ item | regex_replace('\\.j2', '') }}"
+      owner: "{{ nexus_user }}"
+      group: "{{ nexus_grp }}"
+      mode: u=rw,g=r,o=r
+    loop:
+      - "nexus.vmoptions.j2"
+      - "nexus.rc.j2"
+  - name: Fix installation permissions (after templates are deployed)
+    tags: basedir_nexus
+    ansible.builtin.file:
+      state: directory
+      path: "{{ nexus_base_dir }}"
+      owner: "{{ nexus_user }}"
+      group: "{{ nexus_grp }}"
+      recurse: true
+  - name: Deploy systemd unit for nexus3 service
+    tags: systemd_deploy
+    ansible.builtin.template:
+      src: "nexus3.service.j2"
+      dest: /lib/systemd/system/nexus3.service
+      owner: "root"
+      group: "root"
+      mode: u=rw,g=r,o=r
+  - name: Setup logrotate
+    tags: deploy_overrides
+    ansible.builtin.template:
+      src: "logrotate.nexus3.j2"
+      dest: "/etc/logrotate.d/nexus3"
+      owner: "root"
+      group: "root"
+      mode: u=rw,g=r,o=r
+  any_errors_fatal: true

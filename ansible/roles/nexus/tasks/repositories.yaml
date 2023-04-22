@@ -1,0 +1,63 @@
+# Create proxy for repositories
+# https://help.sonatype.com/repomanager3/integrations/rest-and-integration-api
+# PyPi: https://pip.pypa.io/en/stable/user_guide/
+---
+- name: Check if the PyPi proxy exists
+  tags: pypi_proxy_exists
+  ansible.builtin.uri:
+    user: "{{ admin_user }}"
+    password: "{{ admin_password }}"
+    url: "{{ nexus_rest_api }}/v1/repositories/pypi/proxy/python_proxy"
+    method: GET
+    body_format: raw
+    status_code: [ 200, 202, 204, 404 ]
+    headers:
+      Content-Type: application/json
+    force_basic_auth: true
+    return_content: true
+  any_errors_fatal: true
+  register: python_local
+- name: Create PyPI proxy
+  tags: pypi_proxy_create
+  ansible.builtin.uri:
+    user: "{{ admin_user }}"
+    password: "{{ admin_password }}"
+    url: "{{ nexus_rest_api }}/v1/repositories/pypi/proxy"
+    method: POST
+    body_format: raw
+    status_code: [ 201 ]
+    headers:
+      Content-Type: application/json
+    body: |-
+      {
+        "name": "python_proxy",
+        "online": true,
+        "storage": {
+          "blobStoreName": "default",
+          "strictContentTypeValidation": true
+        },
+        "proxy": {
+          "remoteUrl": "https://pypi.org/",
+          "contentMaxAge": -1,
+          "metadataMaxAge": 1440
+        },
+        "negativeCache": {
+          "enabled": true,
+          "timeToLive": 1440
+        },
+        "httpClient": {
+          "blocked": false,
+          "autoBlock": true,
+          "connection": {
+            "retries": 0,
+            "timeout": 60,
+            "enableCircularRedirects": false,
+            "enableCookies": true,
+            "useTrustStore": false
+          }
+        }
+      }
+    force_basic_auth: true
+    return_content: true
+  any_errors_fatal: true
+  when: python_local.status == 404

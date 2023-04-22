@@ -1,0 +1,7 @@
+# https://pip.pypa.io/en/stable/topics/configuration/
+[global]
+timeout = 60
+[install]
+index = http://{{ nexus3_server }}:8081/repository/python_proxy/pypi
+index-url = http://{{ nexus3_server }}:8081/repository/python_proxy/simple/
+trusted-host = {{ nexus3_server }}

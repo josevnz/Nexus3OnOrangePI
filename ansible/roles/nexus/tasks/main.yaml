@@ -1,0 +1,10 @@
+# Tasks listed here are related to the remote Nexus 3 server
+# Included tasks are called in order
+---
+  - include_tasks: third_party.yaml
+  - include_tasks: pre_install.yaml
+  - include_tasks: download.yaml
+  - include_tasks: install.yaml
+  - include_tasks: post_install.yaml
+  - include_tasks: user.yaml
+  - include_tasks: repositories.yaml

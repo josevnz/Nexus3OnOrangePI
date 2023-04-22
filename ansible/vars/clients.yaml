@@ -1,0 +1,5 @@
+# To the list where pip will look for the configuration file, run: pip -v config list
+---
+lab_user: "josevnz"
+pip_dir: "/home/{{ lab_user }}/.config/pip/"
+nexus3_server: "orangepi5.home"

@@ -1,0 +1,22 @@
+# Ansible playbook to provision Nexus 3 OSS on a home lab
+# This Nexus installation will work as a proxy for:
+#
+# Author: @josevnz@fosstodon.org
+# Linted with: ansible-lint ansible/main.yaml
+# Checked with: ansible-playbook --inventories ansible/inventories/ --check ansible/main.yaml
+# Nexus 3 has a dedicated disk for reads/ writes on my OrangePI 5 computer.
+---
+- hosts: all
+  tags: clients
+  vars_files:
+    - vars/clients.yaml
+  roles:
+    - clients
+- hosts: nexus_server
+  tags: nexus
+  become_user: root
+  become: true
+  vars_files:
+    - vars/nexus.yaml
+  roles:
+    - nexus

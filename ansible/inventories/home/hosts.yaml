@@ -1,0 +1,13 @@
+# Host inventories for the home lab, reflects location of Nexus servers and clients
+# https://docs.ansible.com/ansible/latest/inventory_guide/intro_inventory.html
+---
+all:
+  children:
+    nexus_server:
+      hosts:
+        orangepi5.home:
+    home_lab:
+      hosts:
+        dmaf5.home:
+        raspberrypi.home:
+        orangepi5.home:

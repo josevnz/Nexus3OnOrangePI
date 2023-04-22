@@ -1,0 +1,39 @@
+# Tasks that must be carried before the installation of Nexus can proceed
+---
+- name: Pre installation tasks
+  block:
+  - name: Ensure group nexus exists
+    tags: nexus_group
+    ansible.builtin.group:
+      name: "{{ nexus_grp }}"
+      gid: 1001
+      state: present
+  - name: Ensure user nexus exists
+    tags: nexus_user
+    ansible.builtin.user:
+      name: "{{ nexus_user }}"
+      comment: Nexus 3 repository manager user
+      uid: 1001
+      group: nexus
+      state: present
+  - name: Create installation directory for Nexus 3
+    tags: basedir_nexus
+    ansible.builtin.file:
+      state: directory
+      path: "{{ nexus_base_dir }}/nexus-{{ nexus3_version }}"
+      owner: "{{ nexus_user }}"
+      group: "{{ nexus_grp }}"
+      mode: "a+rwx"
+  - name: Create data directories for Nexus 3
+    tags: datadir_nexus
+    ansible.builtin.file:
+      state: directory
+      path: "{{ nexus_data_dir }}/{{ item }}"
+      owner: "{{ nexus_user }}"
+      group: "{{ nexus_grp }}"
+      mode: "ug+rwx"
+    loop:
+      - "blobs"
+      - "log"
+      - "tmp"
+  any_errors_fatal: true

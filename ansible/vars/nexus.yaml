@@ -1,0 +1,14 @@
+# Variables used during the provisioning phase, Nexus role.
+---
+nexus_user: "nexus"
+nexus_grp: "nexus"
+admin_user: "admin"
+nexus3_server: "orangepi5.home"
+nexus3_version: "3.50.0-01"
+nexus3_src_file: "nexus-{{ nexus3_version }}-unix.tar.gz"
+nexus3_download_url: "https://download.sonatype.com/nexus/3/{{ nexus3_src_file }}"
+nexus3_checksum_md5sum: "https://download.sonatype.com/nexus/3/nexus-{{ nexus3_version }}-unix.tar.gz.md5"
+install_base_dir: "/usr/local"
+nexus_base_dir: "{{ install_base_dir }}/nexus"
+nexus_data_dir: "/data/nexus"
+nexus_rest_api: "http://{{ nexus3_server }}:8081/service/rest"
