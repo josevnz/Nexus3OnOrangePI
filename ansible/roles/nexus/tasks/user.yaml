@@ -11,7 +11,7 @@
     url: "{{ nexus_rest_api }}/v1/security/anonymous"
     method: PUT
     body_format: raw
-    status_code: [ 200, 202, 204 ]
+    status_code: [200, 202, 204]
     headers:
       Content-Type: application/json
     body: |-
@@ -27,7 +27,7 @@
     url: "{{ nexus_rest_api }}/v1/security/realms/active"
     method: PUT
     body_format: raw
-    status_code: [ 200, 202, 204 ]
+    status_code: [200, 202, 204]
     headers:
       Content-Type: application/json
     body: |-

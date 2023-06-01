@@ -7,12 +7,14 @@
 # Nexus 3 has a dedicated disk for reads/ writes on my OrangePI 5 computer.
 ---
 - hosts: all
+  name: All machines including clients
   tags: clients
   vars_files:
     - vars/clients.yaml
   roles:
     - clients
 - hosts: nexus_server
+  name: Only the Nexus server
   tags: nexus
   become_user: root
   become: true

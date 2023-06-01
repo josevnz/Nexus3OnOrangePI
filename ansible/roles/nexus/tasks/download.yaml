@@ -2,6 +2,7 @@
 #   https://help.sonatype.com/repomanager3/product-information/download
 ---
 - name: Nexus download tasks
+  any_errors_fatal: true
   block:
   - name: Check if Nexus 3 src file already exists
     tags: download_pre_check
@@ -15,5 +16,5 @@
       url: "{{ nexus3_download_url }}"
       dest: "{{ install_base_dir }}/src"
       checksum: "md5:{{ nexus3_checksum_md5sum }}"
-    when: nexus_src.stat.exists == False
-  any_errors_fatal: true
+      mode: "u=rw"
+    when: nexus_src.stat.exists

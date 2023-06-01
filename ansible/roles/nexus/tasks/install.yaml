@@ -5,6 +5,7 @@
 # We will not use the provided Debian or RPM community packages as we want maximum control over some settings.
 ---
 - name: Nexus installation tasks
+  any_errors_fatal: true
   block:
   - name: Check if the nexus 3 directory exists
     tags: exists_basedir_nexus
@@ -24,7 +25,7 @@
       remote_src: true
       owner: "{{ nexus_user }}"
       group: "{{ nexus_grp }}"
-    when: base_dir.stat.isdir is defined and base_dir.stat.isdir and nexus_base.stat.exists == False
+    when: base_dir.stat.isdir is defined and base_dir.stat.isdir and nexus_base.stat.exists
   - name: Deploy Nexus configuration overrides
     tags: deploy_overrides
     ansible.builtin.template:
@@ -60,4 +61,3 @@
       owner: "root"
       group: "root"
       mode: u=rw,g=r,o=r
-  any_errors_fatal: true

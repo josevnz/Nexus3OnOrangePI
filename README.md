@@ -1,5 +1,7 @@
 # Provisioning Nexus Sonatype OSS on an Orange PI 5 with Ansible
 
+![](mazinger-z.png)
+
 Nexus 3 OSS is an [Open Source](https://github.com/sonatype/nexus-public) [artifact repository manager](https://www.sonatype.com/products/repository-oss) with the ability to handle multiple formats like container images, Python PIP, Java jar and many others.
 
 Why have an on-premise artifact manager? There are many reasons for it:

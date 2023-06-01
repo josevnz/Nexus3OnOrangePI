@@ -7,61 +7,61 @@
 - name: Post installation steps
   tags: systemd_health1
   block:
-  - name: Make sure nexus3 is running
-    ansible.builtin.systemd:
-      state: started
-      name: nexus3
-      enabled: true
-      daemon_reload: true
-  - name: Perform a health checks, retry until is fully initialized
-    tags: nexus_health
-    ansible.builtin.uri:
-      url: "{{ nexus_rest_api }}{{ item }}"
-    loop:
-      - "/v1/status"
-      - "/v1/status/writable"
-    register: _result
-    until: _result.status == 200
-    retries: 12 # 12 * 5 seconds = 1 minute each (1 * 60 / 5)
-    delay: 5 # Every 5 seconds
-  - name: Check if the default password still exists (only true for first time installations)
-    tags: default_password_file
-    ansible.builtin.stat:
-      path: "{{ nexus_data_dir }}/sonatype-work/nexus3/admin.password"
-    register: default_password_file
+    - name: Make sure nexus3 is running
+      ansible.builtin.systemd:
+        state: started
+        name: nexus3
+        enabled: true
+        daemon_reload: true
+    - name: Perform a health checks, retry until is fully initialized
+      tags: nexus_health
+      ansible.builtin.uri:
+        url: "{{ nexus_rest_api }}{{ item }}"
+      loop:
+        - "/v1/status"
+        - "/v1/status/writable"
+      register: _result
+      until: _result.status == 200
+      retries: 12 # 12 * 5 seconds = 1 minute each (1 * 60 / 5)
+      delay: 5 # Every 5 seconds
+    - name: Check if the default password still exists (only true for first time installations)
+      tags: default_password_file
+      ansible.builtin.stat:
+        path: "{{ nexus_data_dir }}/sonatype-work/nexus3/admin.password"
+      register: default_password_file
   any_errors_fatal: true
 - name: Password reset
   tags: password_reset
   block:
-  - name: Retrieve default password file
-    ansible.builtin.slurp:
-      src: "{{ nexus_data_dir }}/sonatype-work/nexus3/admin.password"
-    register: admin_default_password
-    ignore_errors: true
-  - name: Verify if we are still using the default password
-    ansible.builtin.uri:
-      user: "{{ admin_user }}"
-      password: "{{ admin_default_password['content'] | b64decode }}"
-      url: "{{ nexus_rest_api }}/v1/status/check"
-      force_basic_auth: true
-      return_content: true
-    ignore_errors: true # If we get a 403 HTTP error it means the new password was set already
-    register: password_check
-    when: admin_default_password is defined and admin_default_password.content is defined
-  - name: Change the default password if needed
-    ansible.builtin.uri:
-      user: "{{ admin_user }}"
-      password: "{{ admin_default_password['content'] | b64decode }}"
-      url: "{{ nexus_rest_api }}/v1/security/users/{{ admin_user }}/change-password"
-      method: PUT
-      body_format: raw
-      status_code: [200, 202, 204]
-      headers:
-        Content-Type: text/plain
-      body: "{{ admin_password }}"
-      force_basic_auth: true
-      return_content: true
-    when: admin_default_password is defined and admin_default_password.content is defined and password_check.status == 200
+    - name: Retrieve default password file
+      ansible.builtin.slurp:
+        src: "{{ nexus_data_dir }}/sonatype-work/nexus3/admin.password"
+      register: admin_default_password
+      ignore_errors: true
+    - name: Verify if we are still using the default password
+      ansible.builtin.uri:
+        user: "{{ admin_user }}"
+        password: "{{ admin_default_password['content'] | b64decode }}"
+        url: "{{ nexus_rest_api }}/v1/status/check"
+        force_basic_auth: true
+        return_content: true
+      ignore_errors: true # If we get a 403 HTTP error it means the new password was set already
+      register: password_check
+      when: admin_default_password is defined and admin_default_password.content is defined
+    - name: Change the default password if needed
+      ansible.builtin.uri:
+        user: "{{ admin_user }}"
+        password: "{{ admin_default_password['content'] | b64decode }}"
+        url: "{{ nexus_rest_api }}/v1/security/users/{{ admin_user }}/change-password"
+        method: PUT
+        body_format: raw
+        status_code: [200, 202, 204]
+        headers:
+          Content-Type: text/plain
+        body: "{{ admin_password }}"
+        force_basic_auth: true
+        return_content: true
+      when: admin_default_password is defined and admin_default_password.content is defined and password_check.status == 200
   any_errors_fatal: true
   when: default_password_file.stat.exists == True
 - name: Fix the path of the default BLOB to use the NVME
@@ -72,7 +72,7 @@
     url: "{{ nexus_rest_api }}/v1/blobstores/file/default"
     method: PUT
     body_format: raw
-    status_code: [ 200, 202, 204 ]
+    status_code: [200, 202, 204]
     headers:
       Content-Type: application/json
     body: |-
